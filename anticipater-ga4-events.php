@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Anticipater GA4 Events
  * Description: Manage and track GA4 events with an easy-to-use WordPress admin interface
- * Version: 1.0.3
+ * Version: 1.0.4
  * Author: Anticipater
  * Author URI: https://anticipater.com
  * License: Proprietary
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('ANTICIPATER_GA4_VERSION', '1.0.3');
+define('ANTICIPATER_GA4_VERSION', '1.0.4');
 define('ANTICIPATER_GA4_UPDATE_URL', 'https://raw.githubusercontent.com/anticipaterdotcom/wordpress-ga4/main/update.json');
 
 class Anticipater_GA4_Events {
@@ -225,6 +225,12 @@ class Anticipater_GA4_Events {
 
     private function get_remote_version_info() {
         $transient_key = 'anticipater_ga4_update_check';
+        
+        // Force check if requested
+        if (isset($_GET['force-check']) && $_GET['force-check'] == 1) {
+            delete_transient($transient_key);
+        }
+        
         $remote = get_transient($transient_key);
         
         if ($remote === false) {
