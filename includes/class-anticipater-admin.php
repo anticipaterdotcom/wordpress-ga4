@@ -15,6 +15,29 @@ class Anticipater_GA4_Admin {
         add_action('admin_init', [$this, 'handle_admin_actions'], 1);
         add_action('admin_init', [$this, 'register_settings']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
+        add_action('wp_ajax_anticipater_toggle_event', [$this, 'ajax_toggle_event']);
+    }
+
+    public function ajax_toggle_event() {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Unauthorized');
+        }
+        
+        check_ajax_referer('anticipater_toggle_event', 'nonce');
+        
+        $index = isset($_POST['index']) ? intval($_POST['index']) : -1;
+        $enabled = isset($_POST['enabled']) ? intval($_POST['enabled']) : 0;
+        
+        $settings = $this->main->get_settings();
+        
+        if (!isset($settings['events'][$index])) {
+            wp_send_json_error('Event not found');
+        }
+        
+        $settings['events'][$index]['enabled'] = $enabled;
+        update_option($this->option_name, $settings);
+        
+        wp_send_json_success(['enabled' => $enabled]);
     }
 
     public function handle_admin_actions() {
@@ -47,6 +70,26 @@ class Anticipater_GA4_Admin {
                 array_splice($settings['events'], $delete_index, 1);
                 update_option($this->option_name, $settings);
             }
+            wp_redirect(admin_url('admin.php?page=anticipater-ga4-events'));
+            exit;
+        }
+        
+        // Enable all events
+        if (isset($_GET['enable_all_events']) && isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'enable_all_events')) {
+            foreach ($settings['events'] as &$event) {
+                $event['enabled'] = 1;
+            }
+            update_option($this->option_name, $settings);
+            wp_redirect(admin_url('admin.php?page=anticipater-ga4-events'));
+            exit;
+        }
+        
+        // Disable all events
+        if (isset($_GET['disable_all_events']) && isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'disable_all_events')) {
+            foreach ($settings['events'] as &$event) {
+                $event['enabled'] = 0;
+            }
+            update_option($this->option_name, $settings);
             wp_redirect(admin_url('admin.php?page=anticipater-ga4-events'));
             exit;
         }
@@ -99,7 +142,7 @@ class Anticipater_GA4_Admin {
                 if (!empty($event['name'])) {
                     $sanitized['events'][] = [
                         'name' => sanitize_text_field($event['name']),
-                        'enabled' => !empty($event['enabled']) ? 1 : 0,
+                        'enabled' => isset($event['enabled']) ? 1 : 0,
                         'type' => sanitize_text_field($event['type']),
                         'selector' => sanitize_text_field($event['selector'] ?? ''),
                         'trigger' => sanitize_text_field($event['trigger'] ?? 'click'),
@@ -173,7 +216,8 @@ class Anticipater_GA4_Admin {
         );
         
         wp_localize_script('anticipater-admin-js', 'anticipaterAdmin', [
-            'optionName' => $this->option_name
+            'optionName' => $this->option_name,
+            'toggleNonce' => wp_create_nonce('anticipater_toggle_event')
         ]);
     }
 
@@ -201,7 +245,9 @@ class Anticipater_GA4_Admin {
                             <span class="label">Enable GA4 Event Tracking</span>
                         </label>
                     </div>
-                    <div>
+                    <div style="display: flex; gap: 8px;">
+                        <a href="<?php echo admin_url('admin.php?page=anticipater-ga4-events&enable_all_events=1&_wpnonce=' . wp_create_nonce('enable_all_events')); ?>" class="button button-secondary" style="font-size: 12px;">Enable All</a>
+                        <a href="<?php echo admin_url('admin.php?page=anticipater-ga4-events&disable_all_events=1&_wpnonce=' . wp_create_nonce('disable_all_events')); ?>" class="button button-secondary" style="font-size: 12px;">Disable All</a>
                         <a href="<?php echo admin_url('admin.php?page=anticipater-ga4-events&event=new_event'); ?>" class="button button-primary">+ Add Event</a>
                     </div>
                 </div>
@@ -225,19 +271,10 @@ class Anticipater_GA4_Admin {
                         <?php foreach ($settings['events'] ?? [] as $index => $event): ?>
                         <tr>
                             <td>
-                                <input type="checkbox" name="<?php echo $this->option_name; ?>[events][<?php echo $index; ?>][enabled]" value="1" <?php checked($event['enabled'] ?? 0, 1); ?>>
-                                <input type="hidden" name="<?php echo $this->option_name; ?>[events][<?php echo $index; ?>][name]" value="<?php echo esc_attr($event['name']); ?>">
-                                <input type="hidden" name="<?php echo $this->option_name; ?>[events][<?php echo $index; ?>][type]" value="<?php echo esc_attr($event['type']); ?>">
-                                <input type="hidden" name="<?php echo $this->option_name; ?>[events][<?php echo $index; ?>][trigger]" value="<?php echo esc_attr($event['trigger'] ?? ''); ?>">
-                                <input type="hidden" name="<?php echo $this->option_name; ?>[events][<?php echo $index; ?>][selector]" value="<?php echo esc_attr($event['selector'] ?? ''); ?>">
-                                <?php if (!empty($event['conditions'])): foreach ($event['conditions'] as $ci => $c): ?>
-                                <input type="hidden" name="<?php echo $this->option_name; ?>[events][<?php echo $index; ?>][conditions][<?php echo $ci; ?>][type]" value="<?php echo esc_attr($c['type']); ?>">
-                                <input type="hidden" name="<?php echo $this->option_name; ?>[events][<?php echo $index; ?>][conditions][<?php echo $ci; ?>][operator]" value="<?php echo esc_attr($c['operator']); ?>">
-                                <input type="hidden" name="<?php echo $this->option_name; ?>[events][<?php echo $index; ?>][conditions][<?php echo $ci; ?>][value]" value="<?php echo esc_attr($c['value']); ?>">
-                                <?php endforeach; endif; ?>
-                                <?php if (!empty($event['params'])): foreach ($event['params'] as $pk => $pv): ?>
-                                <input type="hidden" name="<?php echo $this->option_name; ?>[events][<?php echo $index; ?>][params][<?php echo esc_attr($pk); ?>]" value="<?php echo esc_attr($pv); ?>">
-                                <?php endforeach; endif; ?>
+                                <label class="anticipater-mini-toggle">
+                                    <input type="checkbox" class="event-toggle" data-index="<?php echo $index; ?>" <?php checked($event['enabled'] ?? 0, 1); ?>>
+                                    <span class="mini-slider"></span>
+                                </label>
                             </td>
                             <td>
                                 <a href="<?php echo admin_url('admin.php?page=anticipater-ga4-events&event=' . urlencode($event['name'])); ?>" style="font-weight: 600;">
@@ -439,7 +476,7 @@ class Anticipater_GA4_Admin {
                             <tr>
                                 <td><code style="font-size: 11px;"><?php echo esc_html(date('Y-m-d H:i:s', strtotime($log->created_at))); ?></code></td>
                                 <td><pre style="margin: 0; font-size: 11px; max-height: 60px; overflow: auto;"><?php 
-                                    $data = $log->event_data;
+                                    $data = stripslashes($log->event_data);
                                     $decoded = json_decode($data, true);
                                     if (is_array($decoded)) {
                                         unset($decoded['event']);
@@ -651,7 +688,7 @@ class Anticipater_GA4_Admin {
                         <td><code><?php echo esc_html(date('Y-m-d H:i:s', strtotime($log->created_at))); ?></code></td>
                         <td><a href="<?php echo admin_url('admin.php?page=anticipater-ga4-events&event=' . urlencode($log->event_name)); ?>" style="color: #2271b1; font-weight: 600; text-decoration: none;"><?php echo esc_html($log->event_name); ?></a></td>
                         <td><pre style="margin: 0; font-size: 11px; max-height: 100px; overflow: auto;"><?php 
-                            $data = $log->event_data;
+                            $data = stripslashes($log->event_data);
                             $decoded = json_decode($data, true);
                             if (is_array($decoded)) {
                                 unset($decoded['event']);

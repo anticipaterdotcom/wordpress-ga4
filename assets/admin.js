@@ -3,6 +3,37 @@
     
     $(document).ready(function() {
     
+    // Event toggle instant save
+    $(document).on('change', '.event-toggle', function() {
+        var $toggle = $(this);
+        var $label = $toggle.closest('.anticipater-mini-toggle');
+        var index = $toggle.data('index');
+        var enabled = $toggle.is(':checked') ? 1 : 0;
+        
+        $label.addClass('saving');
+        
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'anticipater_toggle_event',
+                nonce: anticipaterAdmin.toggleNonce,
+                index: index,
+                enabled: enabled
+            },
+            success: function(response) {
+                $label.removeClass('saving');
+                if (!response.success) {
+                    $toggle.prop('checked', !enabled);
+                }
+            },
+            error: function() {
+                $label.removeClass('saving');
+                $toggle.prop('checked', !enabled);
+            }
+        });
+    });
+    
     var eventIndex = $('#events-list tr').length;
     
     function addEventRow(event) {

@@ -703,3 +703,47 @@
 .conditions-panel, .params-panel {
     animation: fadeIn 0.2s ease-out;
 }
+
+.anticipater-mini-toggle {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.anticipater-mini-toggle input {
+    display: none;
+}
+
+.anticipater-mini-toggle .mini-slider {
+    width: 36px;
+    height: 20px;
+    background: #cbd5e1;
+    border-radius: 10px;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.anticipater-mini-toggle .mini-slider::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.anticipater-mini-toggle input:checked + .mini-slider {
+    background: linear-gradient(135deg, var(--anticipater-success), #059669);
+}
+
+.anticipater-mini-toggle input:checked + .mini-slider::after {
+    transform: translateX(16px);
+}
+
+.anticipater-mini-toggle.saving .mini-slider {
+    opacity: 0.5;
+}
