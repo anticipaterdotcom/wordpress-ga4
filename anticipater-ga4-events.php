@@ -103,19 +103,26 @@ class Anticipater_GA4_Events {
         $table_name = $wpdb->prefix . 'anticipater_event_log';
         
         $event_data = $_POST['event_data'] ?? '[]';
+        
+        // Handle array data (rare for this endpoint but possible)
         if (is_array($event_data)) {
             $event_data = wp_json_encode($event_data);
+        } else {
+            // Strip slashes added by WordPress to $_POST
+            $event_data = stripslashes($event_data);
         }
         
         // Validate JSON
         json_decode($event_data);
         if (json_last_error() !== JSON_ERROR_NONE) {
+            // Fallback: try originally posted data if stripslashes broke it (unlikely but safe)
+            // or just log empty array
             $event_data = '[]';
         }
         
         $wpdb->insert($table_name, [
             'event_name' => sanitize_text_field($_POST['event_name'] ?? ''),
-            'event_data' => $event_data, // JSON is safe to store as is, if valid
+            'event_data' => $event_data, // Store clean JSON
             'page_url' => esc_url_raw($_POST['page_url'] ?? ''),
             'user_agent' => sanitize_text_field($_SERVER['HTTP_USER_AGENT'] ?? ''),
             'ip_address' => sanitize_text_field($ip),
