@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Anticipater GA4 Events
  * Description: Manage and track GA4 events with an easy-to-use WordPress admin interface
- * Version: 1.0.4
+ * Version: 1.0.5
  * Author: Anticipater
  * Author URI: https://anticipater.com
  * License: Proprietary
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('ANTICIPATER_GA4_VERSION', '1.0.4');
+define('ANTICIPATER_GA4_VERSION', '1.0.5');
 define('ANTICIPATER_GA4_UPDATE_URL', 'https://raw.githubusercontent.com/anticipaterdotcom/wordpress-ga4/main/update.json');
 
 class Anticipater_GA4_Events {

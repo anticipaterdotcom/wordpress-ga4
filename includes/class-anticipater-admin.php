@@ -99,7 +99,7 @@ class Anticipater_GA4_Admin {
                 if (!empty($event['name'])) {
                     $sanitized['events'][] = [
                         'name' => sanitize_text_field($event['name']),
-                        'enabled' => isset($event['enabled']) ? 1 : 0,
+                        'enabled' => !empty($event['enabled']) ? 1 : 0,
                         'type' => sanitize_text_field($event['type']),
                         'selector' => sanitize_text_field($event['selector'] ?? ''),
                         'trigger' => sanitize_text_field($event['trigger'] ?? 'click'),
