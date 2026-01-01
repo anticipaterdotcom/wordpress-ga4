@@ -1,0 +1,38 @@
+{
+    "name": "anticipater/wordpress-ga4",
+    "description": "Manage and track GA4 events with an easy-to-use WordPress admin interface",
+    "type": "wordpress-plugin",
+    "license": "proprietary",
+    "version": "1.0.0",
+    "authors": [
+        {
+            "name": "Anticipater",
+            "email": "info@anticipater.com",
+            "homepage": "https://anticipater.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "composer/installers": "^2.0"
+    },
+    "autoload": {
+        "classmap": [
+            "anticipater-ga4-events.php"
+        ]
+    },
+    "extra": {
+        "installer-name": "anticipater-ga4-events"
+    },
+    "support": {
+        "issues": "https://github.com/anticipaterdotcom/wordpress-ga4/issues",
+        "source": "https://github.com/anticipaterdotcom/wordpress-ga4"
+    },
+    "keywords": [
+        "wordpress",
+        "plugin",
+        "ga4",
+        "google-analytics",
+        "tracking",
+        "events"
+    ]
+}
