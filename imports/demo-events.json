@@ -1,0 +1,257 @@
+{
+  "plugin": "anticipater-ga4-events",
+  "version": "3.0.0",
+  "exported": "2026-01-01",
+  "events": [
+    {
+      "name": "session_start",
+      "enabled": 1,
+      "type": "automatic",
+      "trigger": "pageload",
+      "selector": "",
+      "conditions": [],
+      "params": {
+        "storage_type": "session",
+        "storage_key": "anticipater_session"
+      }
+    },
+    {
+      "name": "first_visit",
+      "enabled": 1,
+      "type": "automatic",
+      "trigger": "pageload",
+      "selector": "",
+      "conditions": [
+        {"type": "new_visitor", "operator": "is_true", "value": ""}
+      ],
+      "params": {
+        "storage_type": "local",
+        "storage_key": "anticipater_first_visit"
+      }
+    },
+    {
+      "name": "user_engagement",
+      "enabled": 1,
+      "type": "automatic",
+      "trigger": "time",
+      "selector": "",
+      "conditions": [],
+      "params": {
+        "trigger_time": "10"
+      }
+    },
+    {
+      "name": "high_intent_user",
+      "enabled": 1,
+      "type": "automatic",
+      "trigger": "behavior",
+      "selector": "",
+      "conditions": [
+        {"type": "page_views", "operator": ">=", "value": "3"}
+      ]
+    },
+    {
+      "name": "returning_visitor_engaged",
+      "enabled": 1,
+      "type": "automatic",
+      "trigger": "behavior",
+      "selector": "",
+      "conditions": [
+        {"type": "returning_visitor", "operator": "is_true", "value": ""},
+        {"type": "scroll_depth", "operator": ">=", "value": "50"}
+      ]
+    },
+    {
+      "name": "mobile_user_engaged",
+      "enabled": 1,
+      "type": "automatic",
+      "trigger": "behavior",
+      "selector": "",
+      "conditions": [
+        {"type": "device_mobile", "operator": "is_true", "value": ""},
+        {"type": "time_on_site", "operator": ">=", "value": "30"}
+      ]
+    },
+    {
+      "name": "exit_intent_trigger",
+      "enabled": 1,
+      "type": "automatic",
+      "trigger": "behavior",
+      "selector": "",
+      "conditions": [
+        {"type": "exit_intent", "operator": "is_true", "value": ""},
+        {"type": "scroll_depth", "operator": ">=", "value": "25"}
+      ]
+    },
+    {
+      "name": "organic_visitor",
+      "enabled": 1,
+      "type": "automatic",
+      "trigger": "pageload",
+      "selector": "",
+      "conditions": [
+        {"type": "traffic_organic", "operator": "is_true", "value": ""}
+      ]
+    },
+    {
+      "name": "social_visitor",
+      "enabled": 1,
+      "type": "automatic",
+      "trigger": "pageload",
+      "selector": "",
+      "conditions": [
+        {"type": "traffic_social", "operator": "is_true", "value": ""}
+      ]
+    },
+    {
+      "name": "scroll",
+      "enabled": 1,
+      "type": "automatic",
+      "trigger": "scroll",
+      "selector": "",
+      "conditions": [],
+      "params": {
+        "thresholds": "25,50,75,90"
+      }
+    },
+    {
+      "name": "klick_produkte",
+      "enabled": 1,
+      "type": "click",
+      "trigger": "click",
+      "selector": "a[href*=\"/produkte\"]"
+    },
+    {
+      "name": "klick_slider",
+      "enabled": 1,
+      "type": "click",
+      "trigger": "click",
+      "selector": ".slick-arrow, .carousel-control, .swiper-button"
+    },
+    {
+      "name": "klick_vorteilsbox",
+      "enabled": 1,
+      "type": "click",
+      "trigger": "click",
+      "selector": ".usp-module, .benefits-module, [class*=\"vorteil\"]"
+    },
+    {
+      "name": "klick_cta_button",
+      "enabled": 1,
+      "type": "click",
+      "trigger": "click",
+      "selector": ".btn-primary, .cta-button, [class*=\"cta\"]"
+    },
+    {
+      "name": "klick_einsatzbereiche",
+      "enabled": 1,
+      "type": "click",
+      "trigger": "click",
+      "selector": "a[href*=\"/einsatzbereich\"]"
+    },
+    {
+      "name": "contact_click",
+      "enabled": 1,
+      "type": "click",
+      "trigger": "click",
+      "selector": "a[href^=\"tel:\"], a[href^=\"mailto:\"], a[href*=\"/kontakt\"]",
+      "params": {
+        "detect_contact": "1"
+      }
+    },
+    {
+      "name": "click",
+      "enabled": 1,
+      "type": "click",
+      "trigger": "click",
+      "selector": "a, button"
+    },
+    {
+      "name": "form_submit",
+      "enabled": 1,
+      "type": "form",
+      "trigger": "wpcf7",
+      "selector": ""
+    },
+    {
+      "name": "video_progress",
+      "enabled": 1,
+      "type": "video",
+      "trigger": "progress",
+      "selector": "",
+      "params": {
+        "thresholds": "25,50,75",
+        "require_unmuted": "1",
+        "exclude_classes": "background,hero,banner,cover,bg-video"
+      }
+    },
+    {
+      "name": "klick_video",
+      "enabled": 1,
+      "type": "video",
+      "trigger": "play",
+      "selector": "",
+      "params": {
+        "require_unmuted": "1",
+        "exclude_classes": "background,hero,banner,cover,bg-video"
+      }
+    },
+    {
+      "name": "video_start",
+      "enabled": 1,
+      "type": "video",
+      "trigger": "play",
+      "selector": "",
+      "params": {
+        "require_unmuted": "1",
+        "exclude_classes": "background,hero,banner,cover,bg-video"
+      }
+    },
+    {
+      "name": "contact_request",
+      "enabled": 1,
+      "type": "form",
+      "trigger": "wpcf7",
+      "selector": ""
+    },
+    {
+      "name": "quote_request",
+      "enabled": 1,
+      "type": "form",
+      "trigger": "wpcf7",
+      "selector": "angebot,quote,anfrage"
+    },
+    {
+      "name": "klick_sm_icon",
+      "enabled": 1,
+      "type": "click",
+      "trigger": "click",
+      "selector": "a[href*=\"facebook\"], a[href*=\"instagram\"], a[href*=\"linkedin\"]",
+      "params": {
+        "detect_platform": "1",
+        "platforms": "facebook,instagram,linkedin,twitter,youtube"
+      }
+    },
+    {
+      "name": "video_complete",
+      "enabled": 1,
+      "type": "video",
+      "trigger": "ended",
+      "selector": "",
+      "params": {
+        "require_unmuted": "1",
+        "exclude_classes": "background,hero,banner,cover,bg-video"
+      }
+    },
+    {
+      "name": "file_download",
+      "enabled": 1,
+      "type": "click",
+      "trigger": "click",
+      "selector": "a[href$=\".pdf\"], a[href$=\".doc\"], a[href$=\".zip\"]",
+      "params": {
+        "detect_file": "1"
+      }
+    }
+  ]
+}
