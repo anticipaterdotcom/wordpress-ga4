@@ -1,0 +1,12 @@
+{
+    "version": "1.0.0",
+    "tested": "6.7",
+    "requires": "5.0",
+    "requires_php": "7.4",
+    "download_url": "https://github.com/anticipaterdotcom/wordpress-ga4/releases/download/v1.0.0/anticipater-ga4-events.zip",
+    "homepage": "https://github.com/anticipaterdotcom/wordpress-ga4",
+    "changelog": "https://github.com/anticipaterdotcom/wordpress-ga4/releases",
+    "changelog_html": "<h4>1.0.0 - 2026-01-01</h4><ul><li>Initial release</li><li>Event configuration with conditions and parameters</li><li>Support for automatic, click, video, and form events</li><li>Cookiebot consent integration</li><li>Server-side UTM persistence</li><li>Debug mode with event logging</li><li>Import/Export functionality</li></ul>",
+    "description": "Manage and track GA4 events with an easy-to-use WordPress admin interface. Features include conditional event triggers, Cookiebot consent integration, and comprehensive event logging.",
+    "last_updated": "2026-01-01"
+}

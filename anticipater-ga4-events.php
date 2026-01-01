@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('ANTICIPATER_GA4_VERSION', '1.0.0');
-define('ANTICIPATER_GA4_UPDATE_URL', 'https://anticipater.com/updates/ga4-events.json');
+define('ANTICIPATER_GA4_UPDATE_URL', 'https://raw.githubusercontent.com/anticipaterdotcom/wordpress-ga4/main/update.json');
 
 class Anticipater_GA4_Events {
     
