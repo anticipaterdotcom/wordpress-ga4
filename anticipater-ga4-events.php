@@ -1133,7 +1133,7 @@ class Anticipater_GA4_Events {
             'anticipater-ga4-events',
             plugin_dir_url(__FILE__) . 'assets/frontend.js',
             [],
-            '1.0.5',
+            '1.0.6',
             true
         );
         

@@ -365,7 +365,7 @@
                     var storageType = params.storage_type || 'session';
                     var storage = storageType === 'local' ? localStorage : sessionStorage;
                     
-                    if (!storage.getItem(storageKey)) {
+                    if (!storage.getItem(storageKey) && checkAllConditions(event)) {
                         storage.setItem(storageKey, Date.now());
                         var eventData = Object.assign({}, getFullContext());
                         if (params.event_params) {
@@ -381,7 +381,7 @@
                     var timeFired = false;
                     
                     setInterval(function() {
-                        if (!timeFired && state.timeOnPage >= triggerTime) {
+                        if (!timeFired && state.timeOnPage >= triggerTime && checkAllConditions(event)) {
                             timeFired = true;
                             sessionStorage.setItem(timeKey, '1');
                             var timeData = Object.assign({}, getFullContext(), { engagement_time_msec: state.timeOnPage * 1000 });
@@ -396,6 +396,8 @@
                     var scrollFired = {};
                     
                     window.addEventListener('scroll', function() {
+                        if (!checkAllConditions(event)) return;
+                        
                         var h = document.documentElement;
                         var b = document.body;
                         var percent = Math.round((h.scrollTop || b.scrollTop) / ((h.scrollHeight || b.scrollHeight) - h.clientHeight) * 100);
@@ -445,7 +447,7 @@
                     shouldFire = true;
                 }
                 
-                if (shouldFire) {
+                if (shouldFire && checkAllConditions(event)) {
                     var eventParams = event.params || {};
                     var outputParams = Object.assign({}, getFullContext(), {
                         element_text: text,
@@ -531,7 +533,7 @@
                 
                 if (event.trigger === 'play') {
                     video.addEventListener('play', function() {
-                        if (!started && (!requireUnmuted || !video.muted)) {
+                        if (!started && (!requireUnmuted || !video.muted) && checkAllConditions(event)) {
                             started = true;
                             pushEvent(event.name, Object.assign({}, getFullContext(), { 
                                 video_title: videoId, 
@@ -546,7 +548,7 @@
                     var thresholds = thresholdsStr.split(',').map(function(t) { return parseInt(t.trim()); });
                     
                     video.addEventListener('timeupdate', function() {
-                        if (video.duration && (!requireUnmuted || !video.muted)) {
+                        if (video.duration && (!requireUnmuted || !video.muted) && checkAllConditions(event)) {
                             var percent = Math.round((video.currentTime / video.duration) * 100);
                             thresholds.forEach(function(threshold) {
                                 if (percent >= threshold && !progressFired[threshold]) {
@@ -563,7 +565,7 @@
                 
                 if (event.trigger === 'ended') {
                     video.addEventListener('ended', function() {
-                        if (!requireUnmuted || !video.muted) {
+                        if ((!requireUnmuted || !video.muted) && checkAllConditions(event)) {
                             pushEvent(event.name, Object.assign({}, getFullContext(), { 
                                 video_title: videoId, 
                                 video_url: video.src || video.currentSrc 
@@ -609,7 +611,7 @@
                     });
                 }
                 
-                if (shouldFire) {
+                if (shouldFire && checkAllConditions(event)) {
                     pushEvent(event.name, Object.assign({}, getFullContext(), {
                         form_id: e.detail.contactFormId,
                         form_name: e.detail.apiResponse.form_title || 'contact_form'
