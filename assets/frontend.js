@@ -63,7 +63,8 @@
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send('action=anticipater_log_event&event_name=' + encodeURIComponent(eventName) + 
                      '&event_data=' + encodeURIComponent(JSON.stringify(params)) +
-                     '&page_url=' + encodeURIComponent(window.location.href));
+                     '&page_url=' + encodeURIComponent(window.location.href) +
+                     '&nonce=' + encodeURIComponent(anticipaterEvents.nonce || ''));
         }
     }
     
