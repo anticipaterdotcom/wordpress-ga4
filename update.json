@@ -1,12 +1,12 @@
 {
-    "version": "1.0.4",
+    "version": "1.0.6",
     "tested": "6.7",
     "requires": "5.0",
     "requires_php": "7.4",
-    "download_url": "https://github.com/anticipaterdotcom/wordpress-ga4/releases/download/v1.0.4/anticipater-ga4-events.zip",
+    "download_url": "https://github.com/anticipaterdotcom/wordpress-ga4/releases/download/v1.0.6/anticipater-ga4-events.zip",
     "homepage": "https://github.com/anticipaterdotcom/wordpress-ga4",
     "changelog": "https://github.com/anticipaterdotcom/wordpress-ga4/releases",
-    "changelog_html": "<h4>1.0.4 - 2026-01-01</h4><ul><li>Feature: Toggle switches for event on/off with instant AJAX save</li><li>Feature: Enable All / Disable All buttons for bulk event management</li></ul><h4>1.0.3 - 2026-01-01</h4><ul><li>Fix: Event data display issue in logs (stripslashes conflict)</li></ul><h4>1.0.2 - 2026-01-01</h4><ul><li>Refactor: Separated Admin UI into dedicated class for better architecture</li><li>Fix: Security hardening for AJAX endpoints (nonce verification, rate limiting)</li><li>Fix: JSON handling in event logging</li><li>Fix: Fatal error with undefined get_settings method</li></ul><h4>1.0.1 - 2026-01-01</h4><ul><li>Fix: All event triggers now properly check conditions before firing</li><li>Fix: pageload, time, scroll, click, video, and form events respect conditions</li><li>Fix: social_visitor and similar conditional events no longer fire incorrectly</li></ul><h4>1.0.0 - 2026-01-01</h4><ul><li>Initial release</li></ul>",
+    "changelog_html": "<h4>1.0.6 - 2026-01-01</h4><ul><li>Fix: Event toggle persistence issue resolved</li></ul><h4>1.0.4 - 2026-01-01</h4><ul><li>Feature: Toggle switches for event on/off with instant AJAX save</li><li>Feature: Enable All / Disable All buttons for bulk event management</li></ul><h4>1.0.3 - 2026-01-01</h4><ul><li>Fix: Event data display issue in logs (stripslashes conflict)</li></ul><h4>1.0.2 - 2026-01-01</h4><ul><li>Refactor: Separated Admin UI into dedicated class for better architecture</li><li>Fix: Security hardening for AJAX endpoints (nonce verification, rate limiting)</li><li>Fix: JSON handling in event logging</li><li>Fix: Fatal error with undefined get_settings method</li></ul><h4>1.0.1 - 2026-01-01</h4><ul><li>Fix: All event triggers now properly check conditions before firing</li><li>Fix: pageload, time, scroll, click, video, and form events respect conditions</li><li>Fix: social_visitor and similar conditional events no longer fire incorrectly</li></ul><h4>1.0.0 - 2026-01-01</h4><ul><li>Initial release</li></ul>",
     "description": "Manage and track GA4 events with an easy-to-use WordPress admin interface. Features include conditional event triggers, Cookiebot consent integration, and comprehensive event logging.",
     "last_updated": "2026-01-01"
 }
