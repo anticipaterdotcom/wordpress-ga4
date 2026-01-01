@@ -439,7 +439,7 @@ class Anticipater_GA4_Admin {
                             <tr>
                                 <td><code style="font-size: 11px;"><?php echo esc_html(date('Y-m-d H:i:s', strtotime($log->created_at))); ?></code></td>
                                 <td><pre style="margin: 0; font-size: 11px; max-height: 60px; overflow: auto;"><?php 
-                                    $data = stripslashes($log->event_data);
+                                    $data = $log->event_data;
                                     $decoded = json_decode($data, true);
                                     if (is_array($decoded)) {
                                         unset($decoded['event']);
@@ -651,7 +651,7 @@ class Anticipater_GA4_Admin {
                         <td><code><?php echo esc_html(date('Y-m-d H:i:s', strtotime($log->created_at))); ?></code></td>
                         <td><a href="<?php echo admin_url('admin.php?page=anticipater-ga4-events&event=' . urlencode($log->event_name)); ?>" style="color: #2271b1; font-weight: 600; text-decoration: none;"><?php echo esc_html($log->event_name); ?></a></td>
                         <td><pre style="margin: 0; font-size: 11px; max-height: 100px; overflow: auto;"><?php 
-                            $data = stripslashes($log->event_data);
+                            $data = $log->event_data;
                             $decoded = json_decode($data, true);
                             if (is_array($decoded)) {
                                 unset($decoded['event']);
