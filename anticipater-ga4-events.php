@@ -384,7 +384,8 @@ class Anticipater_GA4_Events {
         ];
         
         if (in_array($handle, $blocked_handles, true)) {
-            $tag = str_replace('<script ', '<script data-cookieconsent="statistics" ', $tag);
+            $tag = str_replace(' type="text/javascript"', '', $tag);
+            $tag = str_replace('<script ', '<script type="text/plain" data-cookieconsent="statistics" ', $tag);
         }
         
         return $tag;
