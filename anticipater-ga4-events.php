@@ -49,6 +49,7 @@ class Anticipater_GA4_Events {
         add_action('wp_ajax_anticipater_clear_log', [$this, 'ajax_clear_log']);
         add_filter('plugins_api', [$this, 'plugin_info'], 20, 3);
         add_filter('site_transient_update_plugins', [$this, 'push_update']);
+        add_filter('script_loader_tag', [$this, 'add_cookiebot_blocking_attribute'], 10, 2);
         
         register_activation_hook(__FILE__, [$this, 'create_log_table']);
     }
@@ -367,6 +368,23 @@ class Anticipater_GA4_Events {
             'nonce' => wp_create_nonce('anticipater_log_nonce'),
             'utm' => $utm_data
         ]);
+    }
+    
+    /**
+     * Add Cookiebot blocking attribute to Google Site Kit gtag script
+     * GA4 should only run when statistics consent is given
+     */
+    public function add_cookiebot_blocking_attribute($tag, $handle) {
+        $blocked_handles = [
+            'google_gtagjs',
+            'google-site-kit-gtm-js',
+        ];
+        
+        if (in_array($handle, $blocked_handles, true)) {
+            $tag = str_replace('<script ', '<script data-cookieconsent="statistics" ', $tag);
+        }
+        
+        return $tag;
     }
 }
 
