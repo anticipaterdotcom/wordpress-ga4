@@ -49,7 +49,7 @@ class Anticipater_GA4_Events {
         add_action('wp_ajax_anticipater_clear_log', [$this, 'ajax_clear_log']);
         add_filter('plugins_api', [$this, 'plugin_info'], 20, 3);
         add_filter('site_transient_update_plugins', [$this, 'push_update']);
-        add_filter('script_loader_tag', [$this, 'add_cookiebot_blocking_attribute'], 10, 2);
+        add_filter('script_loader_tag', [$this, 'add_cookiebot_blocking_attribute'], 999, 2);
         add_filter('googlesitekit_consent_tag_block_on_consent_tag_manager', '__return_true');
         add_filter('googlesitekit_consent_tag_block_on_consent_analytics-4', '__return_true');
         
