@@ -49,8 +49,6 @@ class Anticipater_GA4_Events {
         add_action('wp_ajax_anticipater_clear_log', [$this, 'ajax_clear_log']);
         add_filter('plugins_api', [$this, 'plugin_info'], 20, 3);
         add_filter('site_transient_update_plugins', [$this, 'push_update']);
-        add_filter('googlesitekit_tagmanager_tag_block_on_consent', '__return_true');
-        add_filter('googlesitekit_analytics-4_tag_block_on_consent', '__return_true');
         add_action('wp_head', [$this, 'output_consent_bridge_script'], 1);
         
         register_activation_hook(__FILE__, [$this, 'create_log_table']);
