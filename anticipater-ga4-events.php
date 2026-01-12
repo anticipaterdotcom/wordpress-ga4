@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Anticipater GA4 Events
  * Description: Manage and track GA4 events with an easy-to-use WordPress admin interface
- * Version: 1.0.13
+ * Version: 1.0.14
  * Author: Anticipater
  * Author URI: https://anticipater.com
  * License: Proprietary
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('ANTICIPATER_GA4_VERSION', '1.0.13');
+define('ANTICIPATER_GA4_VERSION', '1.0.14');
 define('ANTICIPATER_GA4_UPDATE_URL', 'https://raw.githubusercontent.com/anticipaterdotcom/wordpress-ga4/main/update.json');
 
 class Anticipater_GA4_Events {
@@ -53,6 +53,9 @@ class Anticipater_GA4_Events {
         add_filter('wp_inline_script_attributes', [$this, 'add_cookiebot_to_inline_scripts'], 999, 2);
         add_filter('googlesitekit_consent_tag_block_on_consent_tag_manager', '__return_true');
         add_filter('googlesitekit_consent_tag_block_on_consent_analytics-4', '__return_true');
+        
+        add_action('wp_head', [$this, 'start_output_buffer'], 1);
+        add_action('wp_head', [$this, 'end_output_buffer'], 999);
         
         register_activation_hook(__FILE__, [$this, 'create_log_table']);
     }
@@ -401,6 +404,38 @@ class Anticipater_GA4_Events {
             $attributes['type'] = 'text/plain';
         }
         return $attributes;
+    }
+    
+    /**
+     * Start output buffer to catch GTM inline scripts
+     */
+    public function start_output_buffer() {
+        ob_start([$this, 'modify_gtm_scripts']);
+    }
+    
+    /**
+     * End output buffer and flush modified content
+     */
+    public function end_output_buffer() {
+        if (ob_get_level() > 0) {
+            ob_end_flush();
+        }
+    }
+    
+    /**
+     * Modify GTM inline scripts to add Cookiebot blocking
+     */
+    public function modify_gtm_scripts($buffer) {
+        $pattern = '/<script([^>]*)>([\s\S]*?googletagmanager\.com\/gtm\.js[\s\S]*?)<\/script>/i';
+        $buffer = preg_replace_callback($pattern, function($matches) {
+            $attrs = $matches[1];
+            $content = $matches[2];
+            if (strpos($attrs, 'data-cookieconsent') === false) {
+                $attrs = ' type="text/plain" data-cookieconsent="statistics"' . $attrs;
+            }
+            return '<script' . $attrs . '>' . $content . '</script>';
+        }, $buffer);
+        return $buffer;
     }
 }
 
