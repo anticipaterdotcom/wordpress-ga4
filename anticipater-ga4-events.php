@@ -50,8 +50,7 @@ class Anticipater_GA4_Events {
         add_filter('plugins_api', [$this, 'plugin_info'], 20, 3);
         add_filter('site_transient_update_plugins', [$this, 'push_update']);
         add_filter('script_loader_tag', [$this, 'add_cookiebot_blocking_to_gtm'], 999, 2);
-        add_action('template_redirect', [$this, 'start_output_buffer'], 1);
-        add_action('shutdown', [$this, 'end_output_buffer'], 0);
+        add_action('wp_head', [$this, 'add_gtm_blocker_script'], 1);
         
         register_activation_hook(__FILE__, [$this, 'create_log_table']);
     }
@@ -400,35 +399,33 @@ class Anticipater_GA4_Events {
     }
     
     /**
-     * Start output buffer to catch GTM inline scripts
+     * Add early script to block GTM until Cookiebot consent
      */
-    public function start_output_buffer() {
-        ob_start([$this, 'modify_gtm_scripts']);
-    }
-    
-    /**
-     * End output buffer
-     */
-    public function end_output_buffer() {
-        if (ob_get_level() > 0) {
-            ob_end_flush();
-        }
-    }
-    
-    /**
-     * Modify GTM inline scripts to add Cookiebot blocking
-     */
-    public function modify_gtm_scripts($buffer) {
-        $pattern = '/<script([^>]*)>([\s\S]*?googletagmanager\.com\/gtm\.js[\s\S]*?)<\/script>/i';
-        $buffer = preg_replace_callback($pattern, function($matches) {
-            $attrs = $matches[1];
-            $content = $matches[2];
-            if (strpos($attrs, 'data-cookieconsent') === false) {
-                $attrs = ' type="text/plain" data-cookieconsent="statistics"' . $attrs;
-            }
-            return '<script' . $attrs . '>' . $content . '</script>';
-        }, $buffer);
-        return $buffer;
+    public function add_gtm_blocker_script() {
+        ?>
+        <script>
+        (function() {
+            var originalInsertBefore = Node.prototype.insertBefore;
+            Node.prototype.insertBefore = function(newNode, refNode) {
+                if (newNode.tagName === 'SCRIPT' && newNode.src && newNode.src.indexOf('googletagmanager.com/gtm.js') > -1) {
+                    if (typeof Cookiebot !== 'undefined' && !Cookiebot.consent.statistics) {
+                        window._blockedGTM = newNode.src;
+                        return newNode;
+                    }
+                }
+                return originalInsertBefore.call(this, newNode, refNode);
+            };
+            window.addEventListener('CookiebotOnAccept', function() {
+                if (Cookiebot.consent.statistics && window._blockedGTM) {
+                    var s = document.createElement('script');
+                    s.src = window._blockedGTM;
+                    document.head.appendChild(s);
+                    window._blockedGTM = null;
+                }
+            });
+        })();
+        </script>
+        <?php
     }
 }
 
