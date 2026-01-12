@@ -50,7 +50,7 @@ class Anticipater_GA4_Events {
         add_filter('plugins_api', [$this, 'plugin_info'], 20, 3);
         add_filter('site_transient_update_plugins', [$this, 'push_update']);
         add_filter('script_loader_tag', [$this, 'add_cookiebot_blocking_to_gtm'], 999, 2);
-        add_filter('wp_inline_script_attributes', [$this, 'add_cookiebot_to_inline_scripts'], 999, 2);
+        add_filter('googlesitekit_tagmanager_tag_block_on_consent', '__return_true');
         
         register_activation_hook(__FILE__, [$this, 'create_log_table']);
     }
@@ -398,17 +398,6 @@ class Anticipater_GA4_Events {
         return $tag;
     }
     
-    /**
-     * Add Cookiebot blocking to inline scripts (GTM)
-     */
-    public function add_cookiebot_to_inline_scripts($attributes, $javascript) {
-        if (strpos($javascript, 'googletagmanager.com/gtm.js') !== false || 
-            strpos($javascript, 'gtm.start') !== false) {
-            $attributes['data-cookieconsent'] = 'statistics';
-            $attributes['type'] = 'text/plain';
-        }
-        return $attributes;
-    }
 }
 
 Anticipater_GA4_Events::get_instance();
