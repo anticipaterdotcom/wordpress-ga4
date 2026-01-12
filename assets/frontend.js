@@ -7,7 +7,7 @@
     
     // Check Cookiebot consent for statistics
     function hasStatisticsConsent() {
-        if (typeof Cookiebot === 'undefined') return true; // No Cookiebot = allow (for dev)
+        if (typeof Cookiebot === 'undefined') return false; // No Cookiebot = block until loaded
         return Cookiebot.consent && Cookiebot.consent.statistics;
     }
     
