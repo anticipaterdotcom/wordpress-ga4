@@ -49,13 +49,8 @@ class Anticipater_GA4_Events {
         add_action('wp_ajax_anticipater_clear_log', [$this, 'ajax_clear_log']);
         add_filter('plugins_api', [$this, 'plugin_info'], 20, 3);
         add_filter('site_transient_update_plugins', [$this, 'push_update']);
-        add_filter('script_loader_tag', [$this, 'add_cookiebot_blocking_attribute'], 999, 2);
-        add_filter('wp_inline_script_attributes', [$this, 'add_cookiebot_to_inline_scripts'], 999, 2);
-        add_filter('googlesitekit_tag_manager_tag_block_on_consent', '__return_true');
+        add_filter('googlesitekit_tagmanager_tag_block_on_consent', '__return_true');
         add_filter('googlesitekit_analytics-4_tag_block_on_consent', '__return_true');
-        
-        add_action('template_redirect', [$this, 'start_output_buffer'], 1);
-        add_action('shutdown', [$this, 'end_output_buffer'], 0);
         
         register_activation_hook(__FILE__, [$this, 'create_log_table']);
     }
@@ -381,68 +376,6 @@ class Anticipater_GA4_Events {
             'nonce' => wp_create_nonce('anticipater_log_nonce'),
             'utm' => $utm_data
         ]);
-    }
-    
-    /**
-     * Add Cookiebot blocking attribute to Google Site Kit gtag script
-     * GA4 should only run when statistics consent is given
-     */
-    public function add_cookiebot_blocking_attribute($tag, $handle) {
-        $consent_map = [
-            'google_gtagjs' => 'statistics',
-            'google-site-kit-gtm-js' => 'statistics',
-        ];
-        
-        if (isset($consent_map[$handle])) {
-            $tag = str_replace(' type="text/javascript"', '', $tag);
-            $tag = str_replace('<script ', '<script type="text/plain" data-cookieconsent="' . $consent_map[$handle] . '" ', $tag);
-        }
-        
-        return $tag;
-    }
-    
-    /**
-     * Add Cookiebot blocking attribute to inline scripts containing GTM
-     */
-    public function add_cookiebot_to_inline_scripts($attributes, $javascript) {
-        if (strpos($javascript, 'googletagmanager.com/gtm.js') !== false || 
-            strpos($javascript, 'gtm.start') !== false) {
-            $attributes['data-cookieconsent'] = 'statistics';
-            $attributes['type'] = 'text/plain';
-        }
-        return $attributes;
-    }
-    
-    /**
-     * Start output buffer to catch GTM inline scripts
-     */
-    public function start_output_buffer() {
-        ob_start([$this, 'modify_gtm_scripts']);
-    }
-    
-    /**
-     * End output buffer and flush modified content
-     */
-    public function end_output_buffer() {
-        if (ob_get_level() > 0) {
-            ob_end_flush();
-        }
-    }
-    
-    /**
-     * Modify GTM inline scripts to add Cookiebot blocking
-     */
-    public function modify_gtm_scripts($buffer) {
-        $pattern = '/<script([^>]*)>([\s\S]*?googletagmanager\.com\/gtm\.js[\s\S]*?)<\/script>/i';
-        $buffer = preg_replace_callback($pattern, function($matches) {
-            $attrs = $matches[1];
-            $content = $matches[2];
-            if (strpos($attrs, 'data-cookieconsent') === false) {
-                $attrs = ' type="text/plain" data-cookieconsent="statistics"' . $attrs;
-            }
-            return '<script' . $attrs . '>' . $content . '</script>';
-        }, $buffer);
-        return $buffer;
     }
     
     /**
