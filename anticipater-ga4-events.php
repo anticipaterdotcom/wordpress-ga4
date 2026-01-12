@@ -51,7 +51,8 @@ class Anticipater_GA4_Events {
         add_filter('site_transient_update_plugins', [$this, 'push_update']);
         add_filter('googlesitekit_tagmanager_tag_block_on_consent', '__return_true');
         add_filter('googlesitekit_analytics-4_tag_block_on_consent', '__return_true');
-        add_action('wp_head', [$this, 'add_consent_bridge_script'], 1);
+        add_action('template_redirect', [$this, 'start_output_buffer'], 1);
+        add_action('shutdown', [$this, 'end_output_buffer'], 0);
         
         register_activation_hook(__FILE__, [$this, 'create_log_table']);
     }
@@ -389,25 +390,30 @@ class Anticipater_GA4_Events {
     }
     
     /**
-     * Bridge script to activate Site Kit data-block-on-consent scripts when Cookiebot consent given
+     * Start output buffer to replace data-block-on-consent with data-cookieconsent
      */
-    public function add_consent_bridge_script() {
-        ?>
-        <script>
-        window.addEventListener('CookiebotOnAccept', function() {
-            if (Cookiebot.consent.statistics) {
-                document.querySelectorAll('script[data-block-on-consent]').forEach(function(script) {
-                    if (script.type === 'text/plain') {
-                        var newScript = document.createElement('script');
-                        if (script.src) newScript.src = script.src;
-                        if (script.textContent) newScript.textContent = script.textContent;
-                        script.parentNode.replaceChild(newScript, script);
-                    }
-                });
-            }
-        });
-        </script>
-        <?php
+    public function start_output_buffer() {
+        if (is_admin()) return;
+        ob_start([$this, 'convert_consent_attributes']);
+    }
+    
+    /**
+     * End output buffer
+     */
+    public function end_output_buffer() {
+        if (is_admin()) return;
+        if (ob_get_level() > 0) {
+            ob_end_flush();
+        }
+    }
+    
+    /**
+     * Convert Site Kit data-block-on-consent to Cookiebot data-cookieconsent
+     */
+    public function convert_consent_attributes($buffer) {
+        $buffer = str_replace('data-block-on-consent="data-block-on-consent"', 'data-cookieconsent="statistics"', $buffer);
+        $buffer = str_replace('data-block-on-consent', 'data-cookieconsent="statistics"', $buffer);
+        return $buffer;
     }
 }
 
