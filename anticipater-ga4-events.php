@@ -49,8 +49,8 @@ class Anticipater_GA4_Events {
         add_action('wp_ajax_anticipater_clear_log', [$this, 'ajax_clear_log']);
         add_filter('plugins_api', [$this, 'plugin_info'], 20, 3);
         add_filter('site_transient_update_plugins', [$this, 'push_update']);
-        add_filter('script_loader_tag', [$this, 'add_cookiebot_blocking_to_gtm'], 999, 2);
         add_filter('googlesitekit_tagmanager_tag_block_on_consent', '__return_true');
+        add_filter('googlesitekit_analytics-4_tag_block_on_consent', '__return_true');
         add_action('wp_head', [$this, 'add_consent_bridge_script'], 1);
         
         register_activation_hook(__FILE__, [$this, 'create_log_table']);
@@ -386,17 +386,6 @@ class Anticipater_GA4_Events {
         $ip = $_SERVER['REMOTE_ADDR'] ?? '';
         $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
         return substr(md5($ip . $ua . wp_salt('auth')), 0, 16);
-    }
-    
-    /**
-     * Add Cookiebot blocking to GA4 scripts (enqueued)
-     */
-    public function add_cookiebot_blocking_to_gtm($tag, $handle) {
-        if ($handle === 'google_gtagjs') {
-            $tag = str_replace(' type="text/javascript"', '', $tag);
-            $tag = str_replace('<script ', '<script type="text/plain" data-cookieconsent="statistics" ', $tag);
-        }
-        return $tag;
     }
     
     /**
