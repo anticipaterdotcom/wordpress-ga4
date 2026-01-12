@@ -51,6 +51,7 @@ class Anticipater_GA4_Events {
         add_filter('site_transient_update_plugins', [$this, 'push_update']);
         add_filter('script_loader_tag', [$this, 'add_cookiebot_blocking_to_gtm'], 999, 2);
         add_filter('googlesitekit_tagmanager_tag_block_on_consent', '__return_true');
+        add_action('wp_head', [$this, 'add_consent_bridge_script'], 1);
         
         register_activation_hook(__FILE__, [$this, 'create_log_table']);
     }
@@ -398,6 +399,27 @@ class Anticipater_GA4_Events {
         return $tag;
     }
     
+    /**
+     * Bridge script to activate Site Kit data-block-on-consent scripts when Cookiebot consent given
+     */
+    public function add_consent_bridge_script() {
+        ?>
+        <script>
+        window.addEventListener('CookiebotOnAccept', function() {
+            if (Cookiebot.consent.statistics) {
+                document.querySelectorAll('script[data-block-on-consent]').forEach(function(script) {
+                    if (script.type === 'text/plain') {
+                        var newScript = document.createElement('script');
+                        if (script.src) newScript.src = script.src;
+                        if (script.textContent) newScript.textContent = script.textContent;
+                        script.parentNode.replaceChild(newScript, script);
+                    }
+                });
+            }
+        });
+        </script>
+        <?php
+    }
 }
 
 Anticipater_GA4_Events::get_instance();
