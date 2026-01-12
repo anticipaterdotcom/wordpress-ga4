@@ -51,6 +51,7 @@ class Anticipater_GA4_Events {
         add_filter('site_transient_update_plugins', [$this, 'push_update']);
         add_filter('googlesitekit_tagmanager_tag_block_on_consent', '__return_true');
         add_filter('googlesitekit_analytics-4_tag_block_on_consent', '__return_true');
+        add_action('wp_head', [$this, 'output_consent_bridge_script'], 1);
         
         register_activation_hook(__FILE__, [$this, 'create_log_table']);
     }
@@ -385,6 +386,26 @@ class Anticipater_GA4_Events {
         $ip = $_SERVER['REMOTE_ADDR'] ?? '';
         $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
         return substr(md5($ip . $ua . wp_salt('auth')), 0, 16);
+    }
+    
+    /**
+     * Output script to bridge Cookiebot consent with Site Kit data-block-on-consent
+     */
+    public function output_consent_bridge_script() {
+        ?>
+        <script>
+        window.addEventListener('CookiebotOnAccept', function() {
+            if (Cookiebot.consent.statistics) {
+                document.querySelectorAll('script[data-block-on-consent]').forEach(function(script) {
+                    var newScript = document.createElement('script');
+                    newScript.src = script.src;
+                    newScript.textContent = script.textContent;
+                    script.parentNode.replaceChild(newScript, script);
+                });
+            }
+        });
+        </script>
+        <?php
     }
 }
 
