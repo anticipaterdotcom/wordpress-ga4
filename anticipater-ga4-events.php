@@ -388,7 +388,7 @@ class Anticipater_GA4_Events {
         
         if (in_array($handle, $blocked_handles, true)) {
             $tag = str_replace(' type="text/javascript"', '', $tag);
-            $tag = str_replace('<script ', '<script type="text/plain" data-cookieconsent="statistics,marketing" ', $tag);
+            $tag = str_replace('<script ', '<script type="text/plain" data-cookieconsent="statistics" ', $tag);
         }
         
         return $tag;
@@ -400,7 +400,7 @@ class Anticipater_GA4_Events {
     public function add_cookiebot_to_inline_scripts($attributes, $javascript) {
         if (strpos($javascript, 'googletagmanager.com/gtm.js') !== false || 
             strpos($javascript, 'gtm.start') !== false) {
-            $attributes['data-cookieconsent'] = 'statistics,marketing';
+            $attributes['data-cookieconsent'] = 'statistics';
             $attributes['type'] = 'text/plain';
         }
         return $attributes;
@@ -431,7 +431,7 @@ class Anticipater_GA4_Events {
             $attrs = $matches[1];
             $content = $matches[2];
             if (strpos($attrs, 'data-cookieconsent') === false) {
-                $attrs = ' type="text/plain" data-cookieconsent="statistics,marketing"' . $attrs;
+                $attrs = ' type="text/plain" data-cookieconsent="statistics"' . $attrs;
             }
             return '<script' . $attrs . '>' . $content . '</script>';
         }, $buffer);
