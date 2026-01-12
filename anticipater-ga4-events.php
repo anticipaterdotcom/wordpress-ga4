@@ -51,11 +51,11 @@ class Anticipater_GA4_Events {
         add_filter('site_transient_update_plugins', [$this, 'push_update']);
         add_filter('script_loader_tag', [$this, 'add_cookiebot_blocking_attribute'], 999, 2);
         add_filter('wp_inline_script_attributes', [$this, 'add_cookiebot_to_inline_scripts'], 999, 2);
-        add_filter('googlesitekit_consent_tag_block_on_consent_tag_manager', '__return_true');
-        add_filter('googlesitekit_consent_tag_block_on_consent_analytics-4', '__return_true');
+        add_filter('googlesitekit_tag_manager_tag_block_on_consent', '__return_true');
+        add_filter('googlesitekit_analytics-4_tag_block_on_consent', '__return_true');
         
-        add_action('wp_head', [$this, 'start_output_buffer'], 1);
-        add_action('wp_head', [$this, 'end_output_buffer'], 999);
+        add_action('template_redirect', [$this, 'start_output_buffer'], 1);
+        add_action('shutdown', [$this, 'end_output_buffer'], 0);
         
         register_activation_hook(__FILE__, [$this, 'create_log_table']);
     }
