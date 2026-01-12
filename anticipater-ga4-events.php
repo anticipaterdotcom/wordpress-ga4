@@ -49,7 +49,7 @@ class Anticipater_GA4_Events {
         add_action('wp_ajax_anticipater_clear_log', [$this, 'ajax_clear_log']);
         add_filter('plugins_api', [$this, 'plugin_info'], 20, 3);
         add_filter('site_transient_update_plugins', [$this, 'push_update']);
-        add_action('wp_head', [$this, 'output_consent_bridge_script'], 1);
+        add_filter('script_loader_tag', [$this, 'add_cookiebot_blocking_to_gtm'], 999, 2);
         
         register_activation_hook(__FILE__, [$this, 'create_log_table']);
     }
@@ -387,23 +387,15 @@ class Anticipater_GA4_Events {
     }
     
     /**
-     * Output script to bridge Cookiebot consent with Site Kit data-block-on-consent
+     * Add Cookiebot blocking to GTM and GA4 scripts
      */
-    public function output_consent_bridge_script() {
-        ?>
-        <script>
-        window.addEventListener('CookiebotOnAccept', function() {
-            if (Cookiebot.consent.statistics) {
-                document.querySelectorAll('script[data-block-on-consent]').forEach(function(script) {
-                    var newScript = document.createElement('script');
-                    newScript.src = script.src;
-                    newScript.textContent = script.textContent;
-                    script.parentNode.replaceChild(newScript, script);
-                });
-            }
-        });
-        </script>
-        <?php
+    public function add_cookiebot_blocking_to_gtm($tag, $handle) {
+        $blocked_handles = ['google-site-kit-gtm-js', 'google_gtagjs'];
+        if (in_array($handle, $blocked_handles, true)) {
+            $tag = str_replace(' type="text/javascript"', '', $tag);
+            $tag = str_replace('<script ', '<script type="text/plain" data-cookieconsent="statistics" ', $tag);
+        }
+        return $tag;
     }
 }
 
