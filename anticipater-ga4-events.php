@@ -50,6 +50,8 @@ class Anticipater_GA4_Events {
         add_filter('plugins_api', [$this, 'plugin_info'], 20, 3);
         add_filter('site_transient_update_plugins', [$this, 'push_update']);
         add_filter('script_loader_tag', [$this, 'add_cookiebot_blocking_to_gtm'], 999, 2);
+        add_action('template_redirect', [$this, 'start_output_buffer'], 1);
+        add_action('shutdown', [$this, 'end_output_buffer'], 0);
         
         register_activation_hook(__FILE__, [$this, 'create_log_table']);
     }
@@ -387,15 +389,46 @@ class Anticipater_GA4_Events {
     }
     
     /**
-     * Add Cookiebot blocking to GTM and GA4 scripts
+     * Add Cookiebot blocking to GA4 scripts (enqueued)
      */
     public function add_cookiebot_blocking_to_gtm($tag, $handle) {
-        $blocked_handles = ['google-site-kit-gtm-js', 'google_gtagjs'];
-        if (in_array($handle, $blocked_handles, true)) {
+        if ($handle === 'google_gtagjs') {
             $tag = str_replace(' type="text/javascript"', '', $tag);
             $tag = str_replace('<script ', '<script type="text/plain" data-cookieconsent="statistics" ', $tag);
         }
         return $tag;
+    }
+    
+    /**
+     * Start output buffer to catch GTM inline scripts
+     */
+    public function start_output_buffer() {
+        ob_start([$this, 'modify_gtm_scripts']);
+    }
+    
+    /**
+     * End output buffer
+     */
+    public function end_output_buffer() {
+        if (ob_get_level() > 0) {
+            ob_end_flush();
+        }
+    }
+    
+    /**
+     * Modify GTM inline scripts to add Cookiebot blocking
+     */
+    public function modify_gtm_scripts($buffer) {
+        $pattern = '/<script([^>]*)>([\s\S]*?googletagmanager\.com\/gtm\.js[\s\S]*?)<\/script>/i';
+        $buffer = preg_replace_callback($pattern, function($matches) {
+            $attrs = $matches[1];
+            $content = $matches[2];
+            if (strpos($attrs, 'data-cookieconsent') === false) {
+                $attrs = ' type="text/plain" data-cookieconsent="statistics"' . $attrs;
+            }
+            return '<script' . $attrs . '>' . $content . '</script>';
+        }, $buffer);
+        return $buffer;
     }
 }
 
