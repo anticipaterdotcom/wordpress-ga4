@@ -340,21 +340,28 @@ class Anticipater_GA4_Events {
             return;
         }
         
-        // Handle UTM persistence server-side via PHP session
-        if (!session_id()) {
-            session_start();
-        }
+        // Secure UTM storage using transients with visitor fingerprint (no cookies/sessions)
+        $visitor_hash = $this->get_visitor_hash();
+        $transient_key = 'anticipater_utm_' . $visitor_hash;
         
         $utm_params = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'utm_id'];
+        $stored_utm = get_transient($transient_key) ?: [];
+        
+        $has_new_utm = false;
         foreach ($utm_params as $param) {
             if (isset($_GET[$param]) && !empty($_GET[$param])) {
-                $_SESSION['anticipater_' . $param] = sanitize_text_field($_GET[$param]);
+                $stored_utm[$param] = sanitize_text_field($_GET[$param]);
+                $has_new_utm = true;
             }
+        }
+        
+        if ($has_new_utm) {
+            set_transient($transient_key, $stored_utm, DAY_IN_SECONDS);
         }
         
         $utm_data = [];
         foreach ($utm_params as $param) {
-            $utm_data[$param] = $_SESSION['anticipater_' . $param] ?? null;
+            $utm_data[$param] = $stored_utm[$param] ?? null;
         }
         
         wp_enqueue_script(
@@ -436,6 +443,15 @@ class Anticipater_GA4_Events {
             return '<script' . $attrs . '>' . $content . '</script>';
         }, $buffer);
         return $buffer;
+    }
+    
+    /**
+     * Generate visitor hash from IP and User-Agent (GDPR compliant - no PII stored)
+     */
+    private function get_visitor_hash() {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        return substr(md5($ip . $ua . wp_salt('auth')), 0, 16);
     }
 }
 
