@@ -381,14 +381,14 @@ class Anticipater_GA4_Events {
      * GA4 should only run when statistics consent is given
      */
     public function add_cookiebot_blocking_attribute($tag, $handle) {
-        $blocked_handles = [
-            'google_gtagjs',
-            'google-site-kit-gtm-js',
+        $consent_map = [
+            'google_gtagjs' => 'statistics',
+            'google-site-kit-gtm-js' => 'marketing|statistics',
         ];
         
-        if (in_array($handle, $blocked_handles, true)) {
+        if (isset($consent_map[$handle])) {
             $tag = str_replace(' type="text/javascript"', '', $tag);
-            $tag = str_replace('<script ', '<script type="text/plain" data-cookieconsent="statistics" ', $tag);
+            $tag = str_replace('<script ', '<script type="text/plain" data-cookieconsent="' . $consent_map[$handle] . '" ', $tag);
         }
         
         return $tag;
@@ -400,7 +400,7 @@ class Anticipater_GA4_Events {
     public function add_cookiebot_to_inline_scripts($attributes, $javascript) {
         if (strpos($javascript, 'googletagmanager.com/gtm.js') !== false || 
             strpos($javascript, 'gtm.start') !== false) {
-            $attributes['data-cookieconsent'] = 'statistics';
+            $attributes['data-cookieconsent'] = 'marketing|statistics';
             $attributes['type'] = 'text/plain';
         }
         return $attributes;
@@ -431,7 +431,7 @@ class Anticipater_GA4_Events {
             $attrs = $matches[1];
             $content = $matches[2];
             if (strpos($attrs, 'data-cookieconsent') === false) {
-                $attrs = ' type="text/plain" data-cookieconsent="statistics"' . $attrs;
+                $attrs = ' type="text/plain" data-cookieconsent="marketing|statistics"' . $attrs;
             }
             return '<script' . $attrs . '>' . $content . '</script>';
         }, $buffer);
